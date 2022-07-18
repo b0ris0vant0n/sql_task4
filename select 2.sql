@@ -53,12 +53,18 @@ GROUP BY s.name, t.duration
 HAVING t.duration = (SELECT min(duration) FROM track)
 
 
-SELECT a.name FROM album a 
-JOIN track t ON t.album_id = a.id 
-GROUP BY a.name 
-ORDER BY count(t.name)
-LIMIT 1
-
+SELECT DISTINCT a.name FROM album a
+LEFT JOIN track ON t.album_id = a.id
+WHERE t.album_id IN (
+    SELECT album_id FROM track
+    GROUP BY album_id HAVING count(id) = (
+        SELECT count(id) FROM track
+        GROUP BY album_id
+        ORDER BY count
+        LIMIT 1
+    )
+)
+ORDER BY a.name
 
 
 
